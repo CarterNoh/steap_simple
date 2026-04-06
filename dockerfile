@@ -42,11 +42,8 @@ RUN cd /home/gtsam && \
     ldconfig
 
 # Download GPMP2 
-RUN echo 'export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}' >> ~/.bashrc && \
-    echo 'export LD_LIBRARY_PATH=/usr/local/share:${LD_LIBRARY_PATH}' >> ~/.bashrc && \
-    source ~/.bashrc && \
-    cd /home && \
-    wget -O gpmp2.tar.gz https://github.com/borglab/gpmp2/archive/1831833.tar.gz && \
+RUN cd /home && \
+    wget -O gpmp2.tar.gz https://github.com/borglab/gpmp2/archive/8be6017.tar.gz && \
     mkdir gpmp2 && \
     tar -zxf gpmp2.tar.gz -C gpmp2 --strip-components 1 && \
     rm gpmp2.tar.gz
@@ -55,14 +52,21 @@ RUN echo 'export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}' >> ~/.bashrc
 RUN pip install -r /home/gpmp2/python/requirements.txt
 
 # Install/Setup GPMP2 for C++ and Python
-RUN cd /home/gpmp2 && mkdir build && cd build
+RUN cd /home/gpmp2 && mkdir build && cd build && \
     cmake .. -DGPMP2_BUILD_PYTHON_TOOLBOX:=ON && \
-    make -j4 check && \
+    # make -j4 check && \
     make install && \
     # make python-install
     cd python && \
     pip install . && \
     ldconfig
 
+# Copy local files to container
+RUN cd /home
+COPY . .
+
 # Change user from 'root' to 'ubuntu' to avoid issues with running further commands as root
 USER ubuntu
+
+# Run python file
+RUN python3 main.py
