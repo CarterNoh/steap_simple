@@ -1,5 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import gtsam
+from gtsam import (DoglegOptimizer, DoglegParams, GaussNewtonOptimizer,
+                   GaussNewtonParams, NonlinearFactorGraph, Point2, Point3,
+                   PriorFactorVector, Values, noiseModel)
+from gtsam.symbol_shorthand import V, X
+
+def generate_random_obstacles(map_size, num_obstacles, obstacle_size):
+    pass #return list or dict of obstacles/landmarks
 
 def create_random_map(map_size, num_obstacles, obstacle_size):
     width, height = map_size
@@ -18,11 +26,31 @@ def visualize_map(map_array):
     plt.ylabel('Y')
     plt.show()
 
+def generate_sdf(map, cell_size, origin):
+    pass
+
+def crateFactorGraph():
+    pass
+
+def addMeasurementFactor(FG, idx):
+    # Returns the new FG
+    pass
+
+def inferFactorGraph(FG):
+    # returns trajectory Theta
+    pass
+
+
+
+
 # Example usage
 if __name__ == "__main__":
     map_size = (200, 100)  # width, height
     num_obstacles = 30
     obstacle_size = 5
 
-    map_array = create_random_map(map_size, num_obstacles, obstacle_size)
-    visualize_map(map_array)
+    map = create_random_map(map_size, num_obstacles, obstacle_size)
+    # visualize_map(map)
+    
+
+
