@@ -13,10 +13,8 @@ from gtsam.symbol_shorthand import V, X
 
 
 class Map():
-    def __init__(self, map_size, origin=(0,0), cell_size=1, num_obstacles=30, obstacle_size=5):
+    def __init__(self, map_size, num_obstacles=30, obstacle_size=4):
         self.height, self.width = map_size
-        self.origin = origin
-        self.cell_size = cell_size
         self.obstacles = self.generate_random_obstacles(num_obstacles, obstacle_size)
         self.map = self.generate_map(self.obstacles, obstacle_size)
 
@@ -36,8 +34,7 @@ class Map():
 
     def visualize(self, ax):
         inv_map_array = 1 - self.map
-        extent = (-self.origin[0]*cell_size, (self.width-self.origin[0])*cell_size, 
-                  -self.origin[1]*cell_size, (self.height-self.origin[1])*cell_size)
+        extent = (0, self.width, 0, self.height)
         ax.imshow(inv_map_array, cmap='gray', extent=extent) # 
         # ax.set_xlabel('X')
         # ax.set_ylabel('Y')
@@ -45,7 +42,7 @@ class Map():
 
 class STEAP():
     def __init__(self, num_nodes, T, start, goal, map, collision_check_freq, Qc=1, 
-                 cost_sigma=0.1, eps_dist=4, goal_cov=(0.0001, 0.0001), trustregion_opt=True):
+                 cost_sigma=0.1, eps_dist=4, goal_cov=(0.0001, 0.0001), trustregion_opt=False):
         # Spacing & Graph Params
         self.n = num_nodes
         self.T = int(T)
@@ -76,9 +73,8 @@ class STEAP():
         
     def createSDF(self):
         '''Signed Distance Field representation of occupancy map'''
-        origin_point2 = Point2(self.map.origin[0], self.map.origin[1])
-        field = signedDistanceField2D(self.map.map, self.map.cell_size)
-        return PlanarSDF(origin_point2, self.map.cell_size, field)
+        field = signedDistanceField2D(self.map.map, 1)
+        return PlanarSDF(Point2(0,0), 1, field)
     
 
 
@@ -210,10 +206,8 @@ if __name__ == "__main__":
     #### Project Settings ####
     # Map Settings
     map_size = (100, 200) # height, width
-    origin = (0, 0)
-    cell_size = 1
-    num_obstacles = 30
-    obstacle_size = 5
+    num_obstacles = 20
+    obstacle_size = 4
     # STEAP Settings
     num_nodes = 20
     total_time = 10.0 # sec
@@ -222,7 +216,7 @@ if __name__ == "__main__":
     goal = [180, 60, 0, 0] # pos_x, pos_y, vel_x, vel_y
 
     #### Simulation ####
-    sim_map = Map(map_size, origin, cell_size, num_obstacles, obstacle_size)
+    sim_map = Map(map_size, num_obstacles, obstacle_size)
     steap = STEAP(num_nodes, total_time, start, goal, sim_map, collision_check_freq)
 
     result = steap.createFactorGraph()
