@@ -62,11 +62,8 @@ RUN cd /home/gpmp2 && mkdir build && cd build && \
     ldconfig
 
 # Copy local files to container
-RUN cd /home
-COPY . .
-
-# Change user from 'root' to 'ubuntu' to avoid issues with running further commands as root
-USER ubuntu
+WORKDIR /steap
+RUN mkdir -p output
 
 # Run python file
 CMD ["python3", "main.py"]
