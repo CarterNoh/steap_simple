@@ -69,4 +69,4 @@ COPY . .
 USER ubuntu
 
 # Run python file
-RUN python3 main.py
+CMD ["python3", "main.py"]
