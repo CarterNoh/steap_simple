@@ -40,7 +40,7 @@ class Map():
 
     def visualize(self, ax):
         inv_map_array = 1 - self.map
-        ax.imshow(inv_map_array, cmap='gray')
+        ax.imshow(inv_map_array, cmap='gray', origin='lower')
 
 
 class STEAP():
@@ -50,7 +50,7 @@ class STEAP():
         self.T = 10                 # total time to reach goal
         self.dt = self.T / self.n   # timestep
         self.check_freq = 20        # Number of upsamples between nodes to check for collisions
-        self.traj_up = 100          # Number of upsamples between nodes to interpolate GP trajectory
+        self.traj_up = 50          # Number of upsamples between nodes to interpolate GP trajectory
         self.sigma = 0.15           # Smoothness Cost: higher means smoother paths at the expense of obstacle avoidance
         self.eps = 12               # 2 * desired minimum distance to obstacles
 
@@ -68,9 +68,8 @@ class STEAP():
                        obstacle_size=4)
 
         # Noise Params
-        self.vel_noise = 7
-        self.meas_noise = [0.1, 0.2]
-        self.meas_model = noiseModel.Diagonal.Sigmas(np.array(self.meas_noise))
+        self.vel_noise = 10
+        self.meas_noise = [0.1, 0.1]
         self.Qc_model = noiseModel.Gaussian.Covariance(np.identity(2))
         self.goal_fix = noiseModel.Isotropic.Sigma(2, 0.0001)
         
@@ -160,8 +159,7 @@ class STEAP():
                                 self.robot, self.map.sdf, self.sigma, self.eps, self.Qc_model, self.dt, tau)
                         self.graph.add(obs_cost_gp)
                             
-        parameters = GaussNewtonParams()
-        self.optimizer = GaussNewtonOptimizer(self.graph, init_values, parameters)
+        self.optimizer = GaussNewtonOptimizer(self.graph, init_values, GaussNewtonParams())
 
         print(f"Initial Error: {self.graph.error(init_values)}\n")
 
@@ -243,7 +241,7 @@ class STEAP():
         plt.savefig(f"output/{idx}.png", dpi=300)
 
     def solveGraph(self, i):
-        # GP is stochastic, so as a heuristic, solve 5 times and pick lowest cost
+    # GP is stochastic, so as a heuristic, solve 5 times and pick lowest cost
         best_error = np.inf
         best_result = None
         for i in range(10):
@@ -283,11 +281,11 @@ class STEAP():
             # Get measurement & update graph
             est_pos, cov = self.getMeasurement(pos)
             self.graph.add(PriorFactorVector(X(i+1), est_pos, noiseModel.Gaussian.Covariance(cov)))
+            self.optimizer = GaussNewtonOptimizer(self.graph, result, GaussNewtonParams())
             
             # Resolve trajectory
-            self.optimizer.optimizeSafely()
-            self.result = self.optimizer.values()
-            print(f"Error at {i+1}: {self.graph.error(self.result)}\n")
+            result = self.solveGraph(i+1)
+            print(f"Error at {i+1}: {self.graph.error(result)}\n")
 
             self.plotGraph(result, i+1)
                 
