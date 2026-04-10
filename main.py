@@ -6,9 +6,9 @@ from gpmp2 import (BodySphere, BodySphereVector, GaussianProcessPriorLinear,
                    PointRobotModel, interpolateArmTraj)
 # from gpmp2.utils.plot_utils import plotSignedDistanceField2D
 from gpmp2.utils.signedDistanceField2D import signedDistanceField2D
-from gtsam import (DoglegOptimizer, DoglegParams, GaussNewtonOptimizer,
-                   GaussNewtonParams, Values, NonlinearFactorGraph, Point2, Point3, Rot2,
-                   PriorFactorVector, BearingRangeFactor2D, noiseModel)
+from gtsam import (GaussNewtonOptimizer,
+                   GaussNewtonParams, Values, NonlinearFactorGraph, Point2, Point3,
+                   PriorFactorVector, noiseModel)
 from gtsam.symbol_shorthand import V, X, L
 
 
@@ -46,13 +46,13 @@ class Map():
 class STEAP():
     def __init__(self):
         # Spacing & Graph Params
-        self.n = 5                  # number of nodes
+        self.n = 10                  # number of nodes
         self.T = 10                 # total time to reach goal
         self.dt = self.T / self.n   # timestep
-        self.check_freq = 20        # Number of upsamples between nodes to check for collisions
-        self.traj_up = 50          # Number of upsamples between nodes to interpolate GP trajectory
+        self.check_freq = 10        # Number of upsamples between nodes to check for collisions
+        self.traj_up = 25           # Number of upsamples between nodes to interpolate GP trajectory
         self.sigma = 0.15           # Smoothness Cost: higher means smoother paths at the expense of obstacle avoidance
-        self.eps = 12               # 2 * desired minimum distance to obstacles
+        self.eps = 10               # 2 * desired minimum distance to obstacles
 
         # Trajectory
         self.start_pos = np.array([20, 40])
@@ -64,13 +64,13 @@ class STEAP():
 
         # Map
         self.map = Map(map_size=(100, 200), # height, width
-                       num_obstacles=15, 
+                       num_obstacles=20, 
                        obstacle_size=4)
 
         # Noise Params
         self.vel_noise = 10
         self.meas_noise = [0.1, 0.1]
-        self.Qc_model = noiseModel.Gaussian.Covariance(np.identity(2))
+        self.Qc_model = noiseModel.Gaussian.Covariance(np.identity(2)*3)
         self.goal_fix = noiseModel.Isotropic.Sigma(2, 0.0001)
         
 
@@ -88,7 +88,7 @@ class STEAP():
     def createFactorGraph(self):
         '''
         Builds a factor graph that plans future poses using Gaussian Process estimation 
-        acording ot the Gaussian Process Motion Planning algorithm (GPMP2). 
+        according ot the Gaussian Process Motion Planning algorithm (GPMP2). 
         
         Factors:
         - Nodes: Poses in continuous space at points in continuous time
@@ -296,5 +296,4 @@ if __name__ == "__main__":
     steap = STEAP()
     steap.simulate()
     # print("Factor Graph:\n{}".format(steap.graph))
-    
     
