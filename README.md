@@ -10,8 +10,7 @@ This algorithm was programmed using the GTSAM library, the industry standard lib
 0. Clone repository
 2. Create "output" folder in repository directory
 2. Build Docker image from the included dockerfile
-3. Run docker image using "docker run --rm -v $(pwd):/steap -v $(pwd)/output:/steap/output steapsimple:latest"
-   (or for windows: "docker run --rm -v ${PWD}:/steap -v ${PWD}/output:/steap/output steapsimple:latest")
+3. Run docker image using "docker run --user $(id -u):$(id -g) --rm -v $(pwd):/steap -v $(pwd)/output:/steap/output steapsimple:latest"
 
 
 ## Notes
@@ -23,5 +22,5 @@ The code has two bugs that occasionally throw exceptions. If either of these hap
 ## Citations
 1. Mukadam, M., Dong, J., Dellaert, F. et al. STEAP: simultaneous trajectory estimation and planning. Auton Robot 43, 415–434 (2019). https://doi.org/10.1007/s10514-018-9770-1
 2. Mukadam, M., Dong, J., Yan, X. et al. Continuous-time Gaussian Process Motion Planning via Probabilistic Inference. International Journal of Robotics Research, 2018. https://doi.org/10.1177/0278364918790369
-3. Frank Dellaert and GTSAM Contributors. borglab/gtsam. May 2022, Georgia Tech Borg Lab. https://doi.org/10.5281/zenodo.5794541, https://github.com/borglab/gtsa
+3. Frank Dellaert and GTSAM Contributors. borglab/gtsam. May 2022, Georgia Tech Borg Lab. https://doi.org/10.5281/zenodo.5794541, https://github.com/borglab/gtsam
 

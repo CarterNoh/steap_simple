@@ -63,7 +63,6 @@ RUN cd /home/gpmp2 && mkdir build && cd build && \
 
 # Copy local files to container
 WORKDIR /steap
-RUN mkdir -p output
 
 # Run python file
 CMD ["python3", "main.py"]
